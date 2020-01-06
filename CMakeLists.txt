@@ -555,11 +555,11 @@ endif (BUILD_CLIENT)
 ############################################################################
 
 if(BUILD_SERVER)
-    add_executable(example_server
+    add_executable(example_server STATIC
     src/examples/example_server.cpp
     )
 
-    target_link_libraries(example_server
+    target_link_libraries(example_server -static
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore

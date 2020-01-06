@@ -10,11 +10,11 @@ project(freeopcua)
 option(BUILD_CLIENT "Build Client" ON)
 option(BUILD_SERVER "Build Server" ON)
 
-option(SSL_SUPPORT_MBEDTLS "Support rsa-oaep password encryption using mbedtls library " ON)
+option(SSL_SUPPORT_MBEDTLS "Support rsa-oaep password encryption using mbedtls library " OFF)
 
-option(BUILD_PYTHON "Build Python bindings" ON)
+option(BUILD_PYTHON "Build Python bindings" OFF)
 option(BUILD_TESTING "Build and run tests" OFF)
-OPTION(BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
 IF (NOT DEFINED CMAKE_INSTALL_LIBDIR)
     SET(CMAKE_INSTALL_LIBDIR lib)
@@ -165,7 +165,7 @@ ADD_CUSTOM_COMMAND(
   )
 
 
-add_library(opcuaprotocol
+add_library(opcuaprotocol STATIC
     src/protocol/rawsize_auto.cpp
     src/protocol/serialize_auto.cpp
     src/protocol/deserialize_auto.cpp
@@ -197,7 +197,7 @@ add_library(opcuaprotocol
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
     target_compile_options(opcuaprotocol PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
 endif ()
-target_link_libraries(opcuaprotocol ${ADDITIONAL_LINK_LIBRARIES})
+target_link_libraries(opcuaprotocol -static ${ADDITIONAL_LINK_LIBRARIES})
 target_include_directories(opcuaprotocol PUBLIC $<INSTALL_INTERFACE:include>)
 install(TARGETS opcuaprotocol EXPORT FreeOpcUa
                               LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -247,7 +247,7 @@ endif()
 # core library
 ############################################################################
 
-SET(opcuacore_SOURCES
+SET(opcuacore_SOURCES 
     src/core/common/addons_core/addon_manager.cpp
     src/core/common/addons_core/config_file.cpp
     src/core/common/addons_core/dynamic_library${OS_SUFFIX}.cpp
@@ -273,13 +273,13 @@ SET(opcuacore_SOURCES
     src/core/server_operations.cpp
 )
 
-add_library(opcuacore ${opcuacore_SOURCES})
+add_library(opcuacore STATIC ${opcuacore_SOURCES})
 
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
     target_compile_options(opcuacore PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
 endif ()
 
-target_link_libraries(opcuacore ${ADDITIONAL_LINK_LIBRARIES} opcuaprotocol ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
+target_link_libraries(opcuacore -static ${ADDITIONAL_LINK_LIBRARIES} opcuaprotocol ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY})
 target_include_directories(opcuacore PUBLIC $<INSTALL_INTERFACE:include>)
 install(TARGETS opcuacore EXPORT FreeOpcUa
                           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -329,7 +329,7 @@ endif(BUILD_TESTING)
 ############################################################################
 if (BUILD_CLIENT)
 
-    add_library(opcuaclient
+    add_library(opcuaclient STATIC
     src/client/binary_connection.cpp
     src/client/binary_client.cpp
     src/client/binary_client_addon.cpp
@@ -339,7 +339,7 @@ if (BUILD_CLIENT)
     if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
         target_compile_options(opcuaclient PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
     endif ()
-    target_link_libraries(opcuaclient
+    target_link_libraries(opcuaclient -static
         opcuacore
         ${ADDITIONAL_LINK_LIBRARIES}
         ${Boost_PROGRAMOPTIONS_LIBRARY}
@@ -400,7 +400,7 @@ if(BUILD_SERVER)
     #)
     #ENDFOREACH(PART)
 
-    add_library(opcuaserver
+    add_library(opcuaserver STATIC
         src/server/address_space_addon.cpp
         src/server/address_space_internal.cpp
         src/server/asio_addon.cpp
@@ -436,7 +436,7 @@ if(BUILD_SERVER)
     if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
         target_compile_options(opcuaserver PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
     endif ()
-    target_link_libraries(opcuaserver ${ADDITIONAL_LINK_LIBRARIES} opcuacore opcuaprotocol ${Boost_SYSTEM_LIBRARY})
+    target_link_libraries(opcuaserver -static ${ADDITIONAL_LINK_LIBRARIES} opcuacore opcuaprotocol ${Boost_SYSTEM_LIBRARY})
     target_include_directories(opcuaserver PUBLIC $<INSTALL_INTERFACE:include>)
     install(TARGETS opcuaserver EXPORT FreeOpcUa
                                 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

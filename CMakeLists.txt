@@ -450,7 +450,7 @@ if(BUILD_SERVER)
     #  src/server/xml_processor.h
 
     if (BUILD_TESTING)
-        add_executable(test_opcuaserver
+        add_executable(test_opcuaserver STATIC
             src/server/opcua_protocol_addon.cpp
             src/serverapp/server_options.cpp
             tests/server/address_space_registry_test.h
@@ -480,7 +480,7 @@ if(BUILD_SERVER)
         #  tests/server/xml_addressspace_ut.cpp
         #  tests/server/xml_address_space_addon_ut.cpp
 
-        target_link_libraries(test_opcuaserver
+        target_link_libraries(test_opcuaserver -static
             ${ADDITIONAL_LINK_LIBRARIES}
             opcuaclient
             opcuacore
@@ -532,11 +532,11 @@ endif(BUILD_SERVER)
 ############################################################################
 
 if (BUILD_CLIENT)
-    add_executable(example_client
+    add_executable(example_client STATIC
     src/examples/example_client.cpp
     )
 
-    target_link_libraries(example_client
+    target_link_libraries(example_client -static
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore

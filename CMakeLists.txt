@@ -532,7 +532,7 @@ endif(BUILD_SERVER)
 ############################################################################
 
 if (BUILD_CLIENT)
-    add_executable(example_client STATIC
+    add_executable(example_client
     src/examples/example_client.cpp
     )
 
@@ -555,7 +555,7 @@ endif (BUILD_CLIENT)
 ############################################################################
 
 if(BUILD_SERVER)
-    add_executable(example_server STATIC
+    add_executable(example_server
     src/examples/example_server.cpp
     )
 

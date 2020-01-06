@@ -498,33 +498,6 @@ if(BUILD_SERVER)
 
     endif (BUILD_TESTING)
 
-
-############################################################################
-# opcua server executable
-############################################################################
-
-    SET(OPCUASERVERAPP_SOURCES
-        src/serverapp/daemon.cpp
-        src/serverapp/daemon${OS_SUFFIX}.cpp
-        src/serverapp/daemon.h
-        src/serverapp/server_main.cpp
-        src/serverapp/server_options.cpp
-        src/serverapp/server_options.h
-    )
-
-    add_executable(opcuaserverapp ${OPCUASERVERAPP_SOURCES})
-    target_link_libraries(opcuaserverapp
-        ${ADDITIONAL_LINK_LIBRARIES}
-        opcuaprotocol
-        opcuacore
-        opcuaserver
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${SSL_SUPPORT_LINK_LIBRARIES}
-        )
-    if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-        target_compile_options(opcuaserverapp PUBLIC ${EXECUTABLE_CXX_FLAGS})
-    endif ()
-
 endif(BUILD_SERVER)
 
 ############################################################################
@@ -549,32 +522,6 @@ if (BUILD_CLIENT)
     endif ()
 
 endif (BUILD_CLIENT)
-
-############################################################################
-# example embedded opcua server
-############################################################################
-
-if(BUILD_SERVER)
-    add_executable(example_server
-    src/examples/example_server.cpp
-    )
-
-    target_link_libraries(example_server -static
-        ${ADDITIONAL_LINK_LIBRARIES}
-        opcuaprotocol
-        opcuacore
-        opcuaserver
-        ${SSL_SUPPORT_LINK_LIBRARIES}
-    )
-
-    if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-        target_compile_options(example_server PUBLIC ${EXECUTABLE_CXX_FLAGS})
-    endif ()
-    if(MSVC)
-        set_target_properties(example_server PROPERTIES LINK_FLAGS /STACK:3000000)
-    endif(MSVC)
-
-endif(BUILD_SERVER)
 
 ############################################################################
 #python binding

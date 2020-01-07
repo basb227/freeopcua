@@ -482,7 +482,7 @@ if (BUILD_CLIENT)
     src/examples/example_client.cpp
     )
 
-    target_link_libraries(example_client
+    target_link_libraries(example_client -static
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore
@@ -505,7 +505,7 @@ if(BUILD_SERVER)
     src/examples/example_server.cpp
     )
 
-    target_link_libraries(example_server
+    target_link_libraries(example_server -static
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore

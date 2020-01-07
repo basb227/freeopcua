@@ -14,7 +14,7 @@ option(SSL_SUPPORT_MBEDTLS "Support rsa-oaep password encryption using mbedtls l
 
 option(BUILD_PYTHON "Build Python bindings" OFF)
 option(BUILD_TESTING "Build and run tests" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries." OFF)
+OPTION(BUILD_SHARED_LIBS "Build shared libraries." OFF)
 
 IF (NOT DEFINED CMAKE_INSTALL_LIBDIR)
     SET(CMAKE_INSTALL_LIBDIR lib)
@@ -247,7 +247,7 @@ endif()
 # core library
 ############################################################################
 
-SET(opcuacore_SOURCES 
+SET(opcuacore_SOURCES
     src/core/common/addons_core/addon_manager.cpp
     src/core/common/addons_core/config_file.cpp
     src/core/common/addons_core/dynamic_library${OS_SUFFIX}.cpp
@@ -296,8 +296,6 @@ if (BUILD_TESTING)
     target_link_libraries(test_dynamic_addon
         opcuacore
     )
-
-
 
     add_executable(test_opcuacore
         tests/core/test_addon_manager.cpp
@@ -360,30 +358,6 @@ if (BUILD_CLIENT)
     #tests/client/computer_endpoints.cpp
     #tests/client/computer_session.cpp
     #tests/client/computer_view.cpp
-
-
-    ############################################################################
-    # command line client
-    ############################################################################
-
-    add_executable(opcuaclientapp
-    src/clientapp/opcua_main.cpp
-    src/clientapp/opcua_options.cpp
-    src/clientapp/opcua_options_attribute_ids.h
-    src/clientapp/opcua_options.h
-    )
-
-
-    target_link_libraries(opcuaclientapp
-        ${ADDITIONAL_LINK_LIBRARIES}
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        opcuaprotocol
-        opcuacore
-    )
-
-    if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
-        target_compile_options(opcuaclient PUBLIC ${EXECUTABLE_CXX_FLAGS})
-    endif ()
 endif(BUILD_CLIENT)
 
 
@@ -436,7 +410,7 @@ if(BUILD_SERVER)
     if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
         target_compile_options(opcuaserver PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
     endif ()
-    target_link_libraries(opcuaserver -static ${ADDITIONAL_LINK_LIBRARIES} pthread opcuacore opcuaprotocol ${Boost_SYSTEM_LIBRARY})
+    target_link_libraries(opcuaserver -static ${ADDITIONAL_LINK_LIBRARIES} opcuacore opcuaprotocol ${Boost_SYSTEM_LIBRARY})
     target_include_directories(opcuaserver PUBLIC $<INSTALL_INTERFACE:include>)
     install(TARGETS opcuaserver EXPORT FreeOpcUa
                                 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -444,6 +418,59 @@ if(BUILD_SERVER)
 
     generate_pkgconfig("libopcuaserver.pc")
 
+    #  src/server/xml_address_space_addon.cpp
+    #  src/server/xml_address_space_loader.cpp
+    #  src/server/xml_address_space_loader.h
+    #  src/server/xml_processor.h
+
+    if (BUILD_TESTING)
+        add_executable(test_opcuaserver
+            src/server/opcua_protocol_addon.cpp
+            src/serverapp/server_options.cpp
+            tests/server/address_space_registry_test.h
+            tests/server/address_space_ut.cpp
+            tests/server/builtin_server.h
+            tests/server/builtin_server_addon.h
+            tests/server/builtin_server_factory.cpp
+            tests/server/builtin_server_impl.cpp
+            tests/server/builtin_server_impl.h
+            tests/server/builtin_server_test.h
+            tests/server/common.cpp
+            tests/server/common.h
+            tests/server/endpoints_services_test.cpp
+            tests/server/endpoints_services_test.h
+            tests/server/model_object_type_ut.cpp
+            tests/server/model_object_ut.cpp
+            tests/server/model_variable_ut.cpp
+            tests/server/opcua_protocol_addon_test.cpp
+            tests/server/opcua_protocol_addon_test.h
+            tests/server/predefined_references.xml
+            tests/server/services_registry_test.h
+            tests/server/standard_namespace_test.h
+            tests/server/standard_namespace_ut.cpp
+            tests/server/test_server_options.cpp
+        )
+
+        #  tests/server/xml_addressspace_ut.cpp
+        #  tests/server/xml_address_space_addon_ut.cpp
+
+        target_link_libraries(test_opcuaserver
+            ${ADDITIONAL_LINK_LIBRARIES}
+            opcuaclient
+            opcuacore
+            opcuaprotocol
+            opcuaserver
+            ${TEST_LIBS}
+            )
+
+        target_include_directories(test_opcuaserver PUBLIC .)
+        if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
+            target_compile_options(test_opcuaserver PUBLIC ${D}TEST_CORE_CONFIG_PATH="${TEST_CORE_CONFIG_PATH}" ${STATIC_LIBRARY_CXX_FLAGS})
+        endif ()
+
+        add_test(NAME opcuaserverapp COMMAND test_opcuaserver)
+
+    endif (BUILD_TESTING)
 endif(BUILD_SERVER)
 
 ############################################################################
@@ -455,7 +482,7 @@ if (BUILD_CLIENT)
     src/examples/example_client.cpp
     )
 
-    target_link_libraries(example_client -static
+    target_link_libraries(example_client
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore
@@ -478,9 +505,8 @@ if(BUILD_SERVER)
     src/examples/example_server.cpp
     )
 
-    target_link_libraries(example_server -static
+    target_link_libraries(example_server
         ${ADDITIONAL_LINK_LIBRARIES}
-		pthread
         opcuaprotocol
         opcuacore
         opcuaserver
@@ -496,3 +522,8 @@ if(BUILD_SERVER)
 
 endif(BUILD_SERVER)
 
+install(EXPORT FreeOpcUa DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/FreeOpcUa FILE FreeOpcUaConfig.cmake)
+
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "FreeOpcUa")
+INCLUDE(CPack)

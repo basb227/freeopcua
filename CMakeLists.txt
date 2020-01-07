@@ -504,7 +504,9 @@ if(BUILD_SERVER)
     add_executable(example_server
     src/examples/example_server.cpp
     )
-
+	
+    target_include_directories(example_server PRIVATE ${Boost_INCLUDE_DIRS})
+	
     target_link_libraries(example_server -static
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol

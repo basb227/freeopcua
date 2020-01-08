@@ -37,6 +37,12 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
         CACHE PATH
         ""
     )
+	
+if(ARM)
+  find_library(PTHREAD_LIB pthread HINTS /usr/arm-linux-gnueabihf/lib)
+else(ARM)
+  find_library(PTHREAD_LIB pthread HINTS /usr/lib/x86_64-linux-gnu)
+endif()
 
 # Helper function to generate a pkg-config file for a single library
 # Takes the filename of the .pc file as a parameter and replaces all
@@ -110,7 +116,7 @@ else(WIN32)
 
 
     #FIXME: remove that variable and link directly when necessary!!!!
-    SET(ADDITIONAL_LINK_LIBRARIES pthread dl ${LIBXML2_LIBRARIES})
+    SET(ADDITIONAL_LINK_LIBRARIES ${PTHREAD_LIB} dl ${LIBXML2_LIBRARIES})
 
 endif(WIN32)
 
@@ -505,7 +511,7 @@ if(BUILD_SERVER)
     src/examples/example_server.cpp
     )
 	
-    target_include_directories(example_server PRIVATE ${Boost_INCLUDE_DIRS})
+    target_include_directories(example_server PRIVATE ${PTHREAD_LIB} ${Boost_INCLUDE_DIRS})
 	
     target_link_libraries(example_server -static
         ${ADDITIONAL_LINK_LIBRARIES}

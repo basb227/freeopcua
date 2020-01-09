@@ -37,12 +37,6 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
         CACHE PATH
         ""
     )
-	
-if(ARM)
-  find_library(PTHREAD_LIB pthread HINTS /usr/arm-linux-gnueabihf/lib)
-else(ARM)
-  find_library(PTHREAD_LIB pthread HINTS /usr/lib/x86_64-linux-gnu)
-endif()
 
 # Helper function to generate a pkg-config file for a single library
 # Takes the filename of the .pc file as a parameter and replaces all
@@ -116,7 +110,7 @@ else(WIN32)
 
 
     #FIXME: remove that variable and link directly when necessary!!!!
-    SET(ADDITIONAL_LINK_LIBRARIES ${PTHREAD_LIB} dl ${LIBXML2_LIBRARIES})
+    SET(ADDITIONAL_LINK_LIBRARIES pthread dl ${LIBXML2_LIBRARIES})
 
 endif(WIN32)
 
@@ -346,7 +340,7 @@ if (BUILD_CLIENT)
     target_link_libraries(opcuaclient -static
         opcuacore
         ${ADDITIONAL_LINK_LIBRARIES}
-        ${Boost_PROGRAMOPTIONS_LIBRARY}
+        ${Boost_LIBRARIES}
         ${SSL_SUPPORT_LINK_LIBRARIES}
     )
 
@@ -416,7 +410,7 @@ if(BUILD_SERVER)
     if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
         target_compile_options(opcuaserver PUBLIC ${STATIC_LIBRARY_CXX_FLAGS})
     endif ()
-    target_link_libraries(opcuaserver -static ${ADDITIONAL_LINK_LIBRARIES} opcuacore opcuaprotocol ${Boost_SYSTEM_LIBRARY})
+    target_link_libraries(opcuaserver -static ${Boost_LIBRARIES} ${ADDITIONAL_LINK_LIBRARIES} opcuacore opcuaprotocol)
     target_include_directories(opcuaserver PUBLIC $<INSTALL_INTERFACE:include>)
     install(TARGETS opcuaserver EXPORT FreeOpcUa
                                 LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -488,8 +482,11 @@ if (BUILD_CLIENT)
     src/examples/example_client.cpp
     )
 
+    target_include_directories(example_client PRIVATE ${Boost_INCLUDE_DIRS})
+
     target_link_libraries(example_client -static
         ${ADDITIONAL_LINK_LIBRARIES}
+        ${Boost_LIBRARIES}
         opcuaprotocol
         opcuacore
         opcuaclient
@@ -511,9 +508,10 @@ if(BUILD_SERVER)
     src/examples/example_server.cpp
     )
 	
-    target_include_directories(example_server PRIVATE ${PTHREAD_LIB} ${Boost_INCLUDE_DIRS})
+    target_include_directories(example_server PRIVATE ${Boost_INCLUDE_DIRS})
 	
     target_link_libraries(example_server -static
+        ${Boost_LIBRARIES}
         ${ADDITIONAL_LINK_LIBRARIES}
         opcuaprotocol
         opcuacore

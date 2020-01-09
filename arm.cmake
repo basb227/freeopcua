@@ -7,7 +7,7 @@ set(CMAKE_CXX_COMPILER ${tools}/bin/arm-linux-gnueabihf-g++)
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--no-as-needed -static")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
-set(BOOST_ROOT $ENV{HOME}/boost_1_64_0)
+set(BOOST_ROOT $ENV{HOME}/arm/boost_1_64_0)
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
